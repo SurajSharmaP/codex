@@ -93,6 +93,10 @@ impl HistoryCell for UnifiedExecInteractionCell {
         out.extend(raw_lines_from_source(&self.stdin));
         out
     }
+
+    fn is_agent_tool_activity(&self) -> bool {
+        true
+    }
 }
 
 pub(crate) fn new_unified_exec_interaction(

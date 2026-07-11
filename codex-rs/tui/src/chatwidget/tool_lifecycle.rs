@@ -15,10 +15,8 @@ impl ChatWidget {
     pub(super) fn on_view_image_tool_call(&mut self, path: LegacyAppPathString) {
         self.record_visible_turn_activity();
         self.flush_answer_stream_with_separator();
-        self.add_to_history(history_cell::new_view_image_tool_call(
-            path,
-            &self.config.cwd,
-        ));
+        let cell = history_cell::new_view_image_tool_call(path, &self.config.cwd);
+        self.add_to_history(history_cell::AgentToolActivityCell::new(cell));
         self.request_redraw();
     }
 
@@ -35,12 +33,14 @@ impl ChatWidget {
         saved_path: Option<AbsolutePathBuf>,
     ) {
         self.flush_answer_stream_with_separator();
-        self.add_to_history(history_cell::new_image_generation_call(
-            call_id,
-            &status,
-            revised_prompt,
-            saved_path,
-        ));
+        let failed = status == "failed";
+        let cell =
+            history_cell::new_image_generation_call(call_id, &status, revised_prompt, saved_path);
+        if failed {
+            self.add_to_history(cell);
+        } else {
+            self.add_to_history(history_cell::AgentToolActivityCell::new(cell));
+        }
         self.request_redraw();
     }
 
@@ -111,7 +111,7 @@ impl ChatWidget {
 
     pub(super) fn on_collab_event(&mut self, cell: PlainHistoryCell) {
         self.flush_answer_stream_with_separator();
-        self.add_to_history(cell);
+        self.add_to_history(history_cell::AgentToolActivityCell::new(cell));
         self.request_redraw();
     }
 

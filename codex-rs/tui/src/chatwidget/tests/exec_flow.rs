@@ -322,6 +322,58 @@ async fn exec_history_cell_shows_working_then_completed() {
 }
 
 #[tokio::test]
+async fn quiet_tool_activity_hides_active_exec_but_keeps_transcript_details() {
+    let (mut chat, _rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
+    chat.set_hide_agent_tool_activity_for_tests(/*hidden*/ true);
+    chat.on_task_started();
+    begin_exec(&mut chat, "call-quiet", "rg needle src");
+
+    let width = 80;
+    let height = chat.desired_height(width);
+    let mut terminal = ratatui::Terminal::new(ratatui::backend::TestBackend::new(width, height))
+        .expect("create terminal");
+    terminal
+        .draw(|frame| chat.render(frame.area(), frame.buffer_mut()))
+        .expect("draw quiet tool activity");
+    let normal = normalized_backend_snapshot(terminal.backend());
+    let transcript = lines_to_single_string(
+        &chat
+            .active_cell_transcript_lines(width)
+            .expect("active exec transcript details"),
+    );
+
+    assert_chatwidget_snapshot!(
+        "quiet_tool_activity_hides_active_exec_but_keeps_transcript_details",
+        format!("NORMAL VIEW\n{normal}\nTRANSCRIPT\n{transcript}")
+    );
+}
+
+#[tokio::test]
+async fn quiet_tool_activity_keeps_explicit_user_shell_commands_visible() {
+    let (mut chat, _rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
+    chat.set_hide_agent_tool_activity_for_tests(/*hidden*/ true);
+    begin_exec_with_source(
+        &mut chat,
+        "call-user-shell",
+        "echo visible",
+        ExecCommandSource::UserShell,
+    );
+
+    let width = 80;
+    let height = chat.desired_height(width);
+    let mut terminal = ratatui::Terminal::new(ratatui::backend::TestBackend::new(width, height))
+        .expect("create terminal");
+    terminal
+        .draw(|frame| chat.render(frame.area(), frame.buffer_mut()))
+        .expect("draw explicit user shell command");
+
+    assert!(
+        normalized_backend_snapshot(terminal.backend()).contains("echo visible"),
+        "explicit user shell commands should remain visible in quiet mode"
+    );
+}
+
+#[tokio::test]
 async fn exec_history_cell_shows_working_then_failed() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
 

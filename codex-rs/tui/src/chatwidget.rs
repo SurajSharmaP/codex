@@ -1641,6 +1641,15 @@ impl ChatWidget {
         self.raw_output_mode
     }
 
+    pub(crate) fn hide_agent_tool_activity(&self) -> bool {
+        self.config.tui_hide_agent_tool_activity
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_hide_agent_tool_activity_for_tests(&mut self, hidden: bool) {
+        self.config.tui_hide_agent_tool_activity = hidden;
+    }
+
     pub(crate) fn history_render_mode(&self) -> HistoryRenderMode {
         if self.raw_output_mode {
             HistoryRenderMode::Raw

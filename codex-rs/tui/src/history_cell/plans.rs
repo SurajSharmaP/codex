@@ -235,4 +235,8 @@ impl HistoryCell for PlanUpdateCell {
         }
         lines
     }
+
+    fn is_agent_tool_activity(&self) -> bool {
+        true
+    }
 }

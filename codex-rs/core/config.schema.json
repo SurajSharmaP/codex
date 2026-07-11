@@ -3041,6 +3041,11 @@
           "description": "Enable animations (welcome screen, shimmer effects, spinners). Defaults to `true`.",
           "type": "boolean"
         },
+        "hide_agent_tool_activity": {
+          "default": false,
+          "description": "Hide agent-initiated tool activity from the normal TUI viewport while retaining it in the transcript overlay. Defaults to `false`.",
+          "type": "boolean"
+        },
         "keymap": {
           "allOf": [
             {

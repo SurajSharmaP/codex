@@ -248,6 +248,16 @@ impl HistoryCell for ExecCell {
     fn raw_lines(&self) -> Vec<Line<'static>> {
         plain_lines(self.transcript_lines(u16::MAX))
     }
+
+    fn is_agent_tool_activity(&self) -> bool {
+        let has_agent_call = self.iter_calls().any(|call| !call.is_user_shell_command());
+        let has_failure = self.iter_calls().any(|call| {
+            call.output
+                .as_ref()
+                .is_some_and(|output| output.exit_code != 0)
+        });
+        has_agent_call && !has_failure
+    }
 }
 
 impl ExecCell {

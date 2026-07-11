@@ -20,6 +20,7 @@ use crate::file_search::FileSearchManager;
 use crate::goal_files;
 use crate::history_cell::AgentMarkdownCell;
 use crate::history_cell::AgentMessageCell;
+use crate::history_cell::AgentToolActivityCell;
 use crate::history_cell::HistoryCell;
 use crate::history_cell::PlainHistoryCell;
 use crate::history_cell::UserHistoryCell;
@@ -4471,6 +4472,39 @@ async fn uncapped_resize_reflow_renders_all_cells_when_row_cap_absent() {
     assert_eq!(rendered.lines.len(), 39);
     assert_eq!(rendered_line_text(&rendered.lines[0]), "cell 0");
     assert_eq!(rendered_line_text(&rendered.lines[38]), "cell 19");
+}
+
+#[tokio::test]
+async fn quiet_tool_activity_resize_reflow_keeps_only_conversation_output() {
+    let (mut app, _rx, _op_rx) = make_test_app_with_channels().await;
+    app.chat_widget
+        .set_hide_agent_tool_activity_for_tests(/*hidden*/ true);
+    app.config.terminal_resize_reflow.max_rows = TerminalResizeReflowMaxRows::Disabled;
+    app.transcript_cells = vec![
+        Arc::new(PlainHistoryCell::new(vec![Line::from(
+            "assistant preamble",
+        )])),
+        Arc::new(AgentToolActivityCell::new(PlainHistoryCell::new(vec![
+            Line::from("Explored hidden internals"),
+        ]))),
+        Arc::new(PlainHistoryCell::new(vec![Line::from(
+            "assistant final answer",
+        )])),
+    ];
+
+    let rendered = app.render_transcript_lines_for_reflow(/*width*/ 80);
+    let rendered = rendered
+        .lines
+        .iter()
+        .map(rendered_line_text)
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    assert_app_snapshot!(
+        "quiet_tool_activity_resize_reflow_keeps_only_conversation_output",
+        rendered
+    );
+    assert_eq!(app.transcript_cells.len(), 3);
 }
 
 #[tokio::test]

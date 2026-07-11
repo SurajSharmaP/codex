@@ -1,0 +1,15 @@
+---
+source: tui/src/chatwidget/tests/exec_flow.rs
+expression: "format!(\"NORMAL VIEW\\n{normal}\\nTRANSCRIPT\\n{transcript}\")"
+---
+NORMAL VIEW
+"                                                                                "
+"• Working (0s • esc to interrupt)                                               "
+"                                                                                "
+"                                                                                "
+"› Ask Codex to do anything                                                      "
+"                                                                                "
+"  gpt-5.6-sol default · /tmp/project                                            "
+
+TRANSCRIPT
+$ rg needle src

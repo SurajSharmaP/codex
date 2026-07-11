@@ -364,6 +364,18 @@ impl HistoryCell for HookCell {
         plain_lines(self.output_lines(u16::MAX, /*render_full_context*/ true))
     }
 
+    fn is_agent_tool_activity(&self) -> bool {
+        !self.runs.iter().any(|run| {
+            matches!(
+                &run.state,
+                HookRunState::Completed {
+                    status: HookRunStatus::Failed | HookRunStatus::Blocked | HookRunStatus::Stopped,
+                    ..
+                }
+            )
+        })
+    }
+
     /// Produces a coarse cache key for transcript overlays while hook animations are active.
     fn transcript_animation_tick(&self) -> Option<u64> {
         if !self.animations_enabled {

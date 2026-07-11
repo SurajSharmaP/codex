@@ -1,3 +1,4 @@
+// quiet-mode edit test
 //! Informational, warning, update, and policy notice history cells.
 
 use super::*;

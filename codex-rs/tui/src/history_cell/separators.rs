@@ -71,6 +71,10 @@ impl HistoryCell for FinalMessageSeparator {
             vec![Line::from(label_parts.join(" • "))]
         }
     }
+
+    fn is_agent_tool_activity(&self) -> bool {
+        true
+    }
 }
 
 pub(crate) fn runtime_metrics_label(summary: RuntimeMetricsSummary) -> Option<String> {

@@ -708,6 +708,12 @@ pub struct Tui {
     #[serde(default)]
     pub raw_output_mode: bool,
 
+    /// Hide agent-initiated tool activity from the normal TUI viewport while retaining it in the
+    /// transcript overlay.
+    /// Defaults to `false`.
+    #[serde(default)]
+    pub hide_agent_tool_activity: bool,
+
     /// Controls whether the TUI uses the terminal's alternate screen buffer.
     ///
     /// - `auto` (default): Use alternate screen.

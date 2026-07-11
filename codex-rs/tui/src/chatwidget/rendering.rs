@@ -6,15 +6,21 @@ impl ChatWidget {
     pub(super) fn as_renderable(&self) -> RenderableItem<'_> {
         let active_cell_right_reserve = self.ambient_pet_wrap_reserved_cols();
         let active_cell_renderable = match &self.transcript.active_cell {
-            Some(cell) => RenderableItem::Owned(Box::new(TranscriptAreaRenderable {
-                child: cell.as_ref(),
-                top: 1,
-                right: active_cell_right_reserve,
-            })),
+            Some(cell) if !self.hide_agent_tool_activity() || !cell.is_agent_tool_activity() => {
+                RenderableItem::Owned(Box::new(TranscriptAreaRenderable {
+                    child: cell.as_ref(),
+                    top: 1,
+                    right: active_cell_right_reserve,
+                }))
+            }
             None => RenderableItem::Owned(Box::new(())),
+            Some(_) => RenderableItem::Owned(Box::new(())),
         };
         let active_hook_cell_renderable = match &self.active_hook_cell {
-            Some(cell) if cell.should_render() => {
+            Some(cell)
+                if cell.should_render()
+                    && (!self.hide_agent_tool_activity() || !cell.is_agent_tool_activity()) =>
+            {
                 RenderableItem::Owned(Box::new(TranscriptAreaRenderable {
                     child: cell,
                     top: 1,

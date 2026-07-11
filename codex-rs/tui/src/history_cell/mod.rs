@@ -193,6 +193,15 @@ pub(crate) trait HistoryCell: std::fmt::Debug + Send + Sync + Any {
     /// Returns copy-friendly plain logical lines for raw scrollback mode.
     fn raw_lines(&self) -> Vec<Line<'static>>;
 
+    /// Returns whether this cell represents agent-initiated tool activity rather than user-facing
+    /// conversation output.
+    ///
+    /// The normal viewport may suppress these cells when quiet tool activity is enabled. The
+    /// transcript overlay still renders them through `transcript_*` methods.
+    fn is_agent_tool_activity(&self) -> bool {
+        false
+    }
+
     /// Returns rich visible lines plus terminal hyperlink metadata.
     fn display_hyperlink_lines(&self, width: u16) -> Vec<HyperlinkLine> {
         plain_hyperlink_lines(self.display_lines(width))

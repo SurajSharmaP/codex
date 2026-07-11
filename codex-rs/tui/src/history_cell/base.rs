@@ -23,6 +23,55 @@ impl HistoryCell for PlainHistoryCell {
     }
 }
 
+/// Tags an otherwise-generic history cell as agent-initiated tool activity.
+///
+/// Rendering is delegated unchanged so the transcript overlay keeps the complete details. The
+/// normal viewport uses `is_agent_tool_activity` to suppress the cell when configured.
+#[derive(Debug)]
+pub(crate) struct AgentToolActivityCell<T> {
+    inner: T,
+}
+
+impl<T> AgentToolActivityCell<T> {
+    pub(crate) fn new(inner: T) -> Self {
+        Self { inner }
+    }
+}
+
+impl<T: HistoryCell> HistoryCell for AgentToolActivityCell<T> {
+    fn display_lines(&self, width: u16) -> Vec<Line<'static>> {
+        self.inner.display_lines(width)
+    }
+
+    fn raw_lines(&self) -> Vec<Line<'static>> {
+        self.inner.raw_lines()
+    }
+
+    fn is_agent_tool_activity(&self) -> bool {
+        true
+    }
+
+    fn display_hyperlink_lines(&self, width: u16) -> Vec<HyperlinkLine> {
+        self.inner.display_hyperlink_lines(width)
+    }
+
+    fn transcript_lines(&self, width: u16) -> Vec<Line<'static>> {
+        self.inner.transcript_lines(width)
+    }
+
+    fn transcript_hyperlink_lines(&self, width: u16) -> Vec<HyperlinkLine> {
+        self.inner.transcript_hyperlink_lines(width)
+    }
+
+    fn is_stream_continuation(&self) -> bool {
+        self.inner.is_stream_continuation()
+    }
+
+    fn transcript_animation_tick(&self) -> Option<u64> {
+        self.inner.transcript_animation_tick()
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct WebHyperlinkHistoryCell {
     lines: Vec<Line<'static>>,

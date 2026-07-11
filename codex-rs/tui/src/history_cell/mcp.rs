@@ -14,6 +14,10 @@ impl HistoryCell for CompletedMcpToolCallWithImageOutput {
     fn raw_lines(&self) -> Vec<Line<'static>> {
         vec![Line::from("tool result (image output)")]
     }
+
+    fn is_agent_tool_activity(&self) -> bool {
+        true
+    }
 }
 fn mcp_auth_status_label(status: McpAuthStatus) -> &'static str {
     match status {
@@ -236,6 +240,10 @@ impl HistoryCell for McpToolCallCell {
         }
 
         lines
+    }
+
+    fn is_agent_tool_activity(&self) -> bool {
+        true
     }
 
     fn transcript_animation_tick(&self) -> Option<u64> {
