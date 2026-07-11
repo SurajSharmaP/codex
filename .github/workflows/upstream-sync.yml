@@ -1,0 +1,42 @@
+name: Sync main with upstream
+
+# Keeps this fork's `main` up to date with openai/codex `main`.
+# Merge-based (never force-pushes), so it is safe to run unattended.
+# Your feature branches are NOT touched — rebase those locally via
+# scripts/sync-upstream.sh when you want your changes on the newest base.
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # daily at 06:00 UTC
+  workflow_dispatch: {} # allow manual "Run workflow" from the Actions tab
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out fork main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Merge upstream/main into main
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/openai/codex.git
+          git fetch upstream --prune
+          # Fast-forward when possible; otherwise a merge commit. Never forced.
+          if ! git merge --no-edit upstream/main; then
+            echo "::error::Merge conflict syncing upstream/main. Resolve locally with scripts/sync-upstream.sh." >&2
+            git merge --abort || true
+            exit 1
+          fi
+          git push origin main
